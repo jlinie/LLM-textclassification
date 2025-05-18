@@ -1,0 +1,100 @@
+## Data splitting
+
+From your project root, run:
+
+```bash
+python3 -m data_manipulation.split \
+  --input "data/TWNERTC_TC_Fine Grained NER_DomainIndependent_NoiseReduction.tsv" \
+  --output-dir data/processed \
+  --val-frac 0.1 \
+  --test-frac 0.1
+
+
+## setup 
+```bash
+    pip install -r requirements.txt
+## Baseline ile TF-IDF + LogisticRegression
+
+### training
+```bash
+python -m src.train \
+  --train data/processed/train.tsv \
+  --val   data/processed/validation.tsv \
+  --out   models/logreg_baseline.pkl
+ 
+
+ ###eval 
+ ```bash 
+    python -m src.evaluate \
+  --model models/logreg_baseline.pkl \
+  --test  data/processed/test.tsv
+ 
+##sampleguess 
+ ```bash 
+python -m src.predict \
+  --model models/logreg_baseline.pkl \
+  --text "Bu cümle hangi kategoride?"
+## LLM-based classification with Ollama
+
+### Pull the model
+```bash
+ollama pull llama3.2
+```bash
+python -m src.llm_evaluate \tou
+  --test      data/processed/test.tsv \
+  --model-name llama3.2 \
+  --out-preds results/llm_preds.json 
+
+
+  ### Installing Ollama
+
+This project uses [Ollama](https://ollama.com) for LLM-based evaluation. To install:
+
+```bash
+brew install ollama    # macOS
+# or see https://docs.ollama.com/#installation for other platforms 
+ollama pull llama3.2    # pulls the llama2 model locally
+ollama serve          # starts the Ollama daemon on localhost 
+python3 -m src.llm_evaluate --test data/processed/test.tsv --model-name llama3.2
+
+örnek:% ollama run llama3.2
+>>> Aşağıda 1 cümle var. Lütfen hiçbir düşünme süreci veya ek açıklama yazma; ya
+... lnızca tek bir kategori adı yaz. Kategoriler: music, people, transportation.
+...  Cümle: Bu albümdeki Gone Ridin ve Livin " for Your Lover David Lynch'nin Ma
+... vi Kadife adlı filmin özelliklerini taşır .
+David Lynch
+ 
+
+ Sen bir metin sınıflandırma asistanısın. Aşağıda iki örnek ve bir sınıflandı
+... rma işi var. Tüm **Entities** bilgilerini kullanarak, her cümleyi yalnızca a
+... şağıdaki kategorilerden birine atayın. Cevap olarak **sadece** kategori adın
+... ı (tek kelime) yazın; başka metin veya noktalama eklemeyin.
+... 
+... Kategoriler: music, people, transportation
+... 
+... Örnek 1:
+... Cümle: Walt Disney Music Company tarafından Musicnotes.com’da yayımlanan not
+... a kağıdına göre şarkı, üç dörtlük ölçü işaretiyle ve dakikada 192 tempoluk m
+... elodiyle yazılmıştır.  
+... Entities: B-artist_name=Walt Disney Music Company, B-composition_form=üç dör
+... tlük ölçü işareti  
+... Kategori: music
+... 
+... Örnek 2:
+... Cümle: Bedir Muharebesi öncesi Müslümanların yağmalamayı planladığı kervanın
+...  lideriydi.  
+... Entities: B-military_conflict_name=Bedir Muharebesi  
+... Kategori: military
+... 
+... Şimdi sınıflandır:
+... Cümle: Bu albümdeki Gone Ridin ve Livin for Your Lover David Lynch\'nin Mavi
+...  Kadife adlı filmin özelliklerini taşır.  
+... Entities: B-artist_track=Gone Ridin, B-artist_track=Livin for Your Lover, B-
+... film_name=Mavi Kadife, B-person_name=David Lynch  
+... Yanıt:' \
+...   --max_tokens 1 \
+...   --temperature 0.0 \
+...   --stop '\n'
+music
+
+ başarılı 

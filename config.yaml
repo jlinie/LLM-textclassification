@@ -1,0 +1,26 @@
+data:
+  raw: "data/TWNERTC_TC_Fine Grained NER_DomainIndependent_NoiseReduction.tsv"
+  processed_dir: "data/processed"
+  val_frac: 0.1
+  test_frac: 0.1
+  seed: 42
+
+model:
+  name: "logreg_baseline"
+  out_path: "models/logreg_baseline.pkl"
+  vectorizer:
+    max_features: 50000
+    ngram_range: [1, 2]
+    min_df: 5
+  classifier:
+    type: "LogisticRegression"
+    params:
+      multi_class: "multinomial"
+      solver: "saga"
+      C: 1.0
+      max_iter: 1000
+      random_state: 42
+
+llm:
+  model_name: "phi4-mini-reasoning"
+  out_preds: "results/llm_preds.json"
