@@ -1,7 +1,7 @@
 Here is a text classification project that im still working on for best runs. The aim is to evaluate two models 
 (Logistic Regression which is my fav ml model vs llama3.2) 
 in terms of accuracy, robustness, speed, cost, error analysis. 
-##ROADMAP 
+**ROADMAP**
 So, i started with splitting the data into test,train,val sets. Then set up a TF-IDF vectorizer, which gives me numeric vectors from raw text. 
 I load the train+val TSVs, fit the TF-IDF on the training texts, then train a multinomial logistic regression.
 I check validation accuracy right away so I know it’s learning something sensible, then dump both the vectorizer and model. After that, I load that saved pickle,
@@ -16,7 +16,7 @@ and the script tracks both total and average latency. When it’s done, it print
 and dumps the true labels, predictions, and timing data to a JSON file. Finally, our Makefile ties everything together—so you can 
 reproduce the entire pipeline with make split, make train, make eval, make llm, and so on—giving you a seamless end-to-end journey from raw data through a 
 logistic-regression baseline to an Ollama-powered LLM classifier, complete with metrics and runtime statistics.
-##Challenges:
+**Challenges:**
 Challenges i encountered throughout this project:
   -Training on a very large, and imbalanced, dataset (classes aren’t equally represented)
   -Slow LLM inference times 
