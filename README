@@ -1,10 +1,35 @@
+Here is a text classification project that im still working on for best runs. The aim is to evaluate two models 
+(Logistic Regression which is my fav ml model vs llama3.2) 
+in terms of accuracy, robustness, speed, cost, error analysis. 
+##ROADMAP 
+So, i started with splitting the data into test,train,val sets. Then set up a TF-IDF vectorizer, which gives me numeric vectors from raw text. 
+I load the train+val TSVs, fit the TF-IDF on the training texts, then train a multinomial logistic regression.
+I check validation accuracy right away so I know it’s learning something sensible, then dump both the vectorizer and model. After that, I load that saved pickle,
+transform the test split, and print out overall accuracy plus a full classification report (precision/recall/F1) so we can see which categories 
+it nails and which it misses, also had predict.py, so you can call it like python -m src.predict --model models/logreg_baseline.pkl --text 
+"This sentence goes where?" and instantly get a predicted label.
+Then, to compare against a powerful LLM via Ollama, the llm_evaluate.py script first reuses our TF-IDF vectorizer to score each example’s highest 
+feature weight and, for any “atypical” texts (i.e. those whose top-weight score falls below a preset threshold), 
+sends the text plus its Entities in a few-shot prompt listing all categories and two illustrative examples. 
+If the example looks typical, it simply falls back to predicting the most common class. All of the Ollama API calls run in parallel, 
+and the script tracks both total and average latency. When it’s done, it prints out overall accuracy, a full classification report, 
+and dumps the true labels, predictions, and timing data to a JSON file. Finally, our Makefile ties everything together—so you can 
+reproduce the entire pipeline with make split, make train, make eval, make llm, and so on—giving you a seamless end-to-end journey from raw data through a 
+logistic-regression baseline to an Ollama-powered LLM classifier, complete with metrics and runtime statistics.
+##Challenges:
+Challenges i encountered throughout this project:
+  -Training on a very large, and imbalanced, dataset (classes aren’t equally represented)
+  -Slow LLM inference times 
+  -Tuning and maximizing the accuracy of the logistic regression baseline
+  -Limited CPU resources on my local machine for heavy training
+
 ## Data splitting
 
 From your project root, run:
 
 ```bash
 python3 -m data_manipulation.split \
-  --input "data/TWNERTC_TC_Fine Grained NER_DomainIndependent_NoiseReduction.tsv" \
+  --input "data/data:).tsv" \
   --output-dir data/processed \
   --val-frac 0.1 \
   --test-frac 0.1
